@@ -6,3 +6,11 @@ function shtml_is_mathml(elem: Element): boolean {
     element = element.parentNode as Element
   }
 }
+
+function shtml_nearest_non_math(elem:Element): Element {
+  if (shtml_is_mathml(elem)) {
+    shtml_nearest_non_math(elem.parentNode as Element)
+  } else {
+    return elem
+  }
+}

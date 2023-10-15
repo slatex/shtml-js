@@ -5,12 +5,15 @@ const MATHML_NS = 'http://www.w3.org/1998/Math/MathML';
 const SHTML_NS = 'http://kwarc.info/ns/SHTML';
 
 if (!WINDOW.SHTML_SERVER) {
-  WINDOW.SHTML_SERVER = 'https://stexmmt.mathhub.info/:sTeX';
+  WINDOW.SHTML_SERVER = 'https://stexmmt.mathhub.info/:sTeX' // 'http://localhost:8080/:sTeX' //
 }
+const USE_RAW = false;
 
 const SHTML_LISTENER = new MutationObserver((mutations) => {
   mutations.forEach((mutation) => {
+    //console.log("Mutation: ",mutation)
     mutation.addedNodes.forEach((node) => {
+      //console.log("Here: ",node)
       if (node.nodeType === Node.ELEMENT_NODE) {
         do_shtml(node as Element);
       }

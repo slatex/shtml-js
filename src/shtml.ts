@@ -1,4 +1,6 @@
-let definitionsMap = new Map<string,Element>()
+let shtml_definitionsMap = new Map<string,Element>()
+
+let shtml_indefinition: Element | undefined = undefined
 
 function do_shtml(elem: Element) {
   const recurse = () => {
@@ -17,6 +19,9 @@ function do_shtml(elem: Element) {
           if (attr.value === 'false') { return }
         case 'definiendum':
           elem.classList.add(`shtml-definiendum`)
+          if (shtml_indefinition) {
+            shtml_definitionsMap.set(attr.value,shtml_indefinition)
+          }
           break
         case 'sourceref': 
         case 'doctitle': 
@@ -50,7 +55,10 @@ function do_shtml(elem: Element) {
           return
         case 'definition':
           shtml_do_definition(elem)
+          const old = shtml_indefinition
+          shtml_indefinition = elem
           recurse()
+          shtml_indefinition = old
           return
         default:
           console.log("SHTML attribute not implemented: ",name)
@@ -77,7 +85,7 @@ function shtml_do_definition(definition:Element) {
   if (fors) {
     console.log("SHTML definition for: ",fors)
     fors.forEach((sym) => {
-      definitionsMap.set(sym,definition)
+      shtml_definitionsMap.set(sym,definition)
     })
   }
 }

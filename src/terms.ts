@@ -4,6 +4,9 @@ function shtml_do_term(elem:Element) {
   data.args.forEach((arg) => {
     do_shtml(arg)
   })
+  shtml_add_symbol_hover(new SHTMLHoverable(kind,data))
+/*
+
   shtml_tooltip_inc()
   data.components.forEach((comp) => {
     switch (kind) {
@@ -19,6 +22,7 @@ function shtml_do_term(elem:Element) {
         break
     }
   })
+  */
 }
 
 enum SHTMLTerm {
