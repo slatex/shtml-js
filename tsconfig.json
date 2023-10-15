@@ -1,0 +1,8 @@
+{
+  "compilerOptions": {
+      "target": "es5",
+      "outFile": "www/shtml.js",
+      "removeComments": true,
+      "lib": ["es2016", "dom"]
+  }
+}

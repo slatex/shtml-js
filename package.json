@@ -1,0 +1,15 @@
+{
+  "name": "@stex-react/source",
+  "version": "0.0.0",
+  "license": "GNU AGPL",
+  "scripts": {
+    "clean": "rm -rf www",
+    "minify": "terser www/shtml.js --compress --mangle --output www/shtml.min.js",
+    "minify:esbuild": "esbuild www/shtml.js --minify --outfile=www/shtml.min.js",
+    "build": "npm run clean && tsc && npm run minify"
+  },
+  "devDependencies": {
+    "esbuild": "^0.19.4",
+    "terser": "^5.21.0"
+  }
+}
