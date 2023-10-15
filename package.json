@@ -1,7 +1,6 @@
 {
-  "name": "@stex-react/source",
-  "version": "0.0.0",
-  "license": "GNU AGPL",
+  "name": "shtml-js",
+  "version": "0.0.1",
   "scripts": {
     "clean": "rm -rf www",
     "minify": "terser www/shtml.js --compress --mangle --output www/shtml.min.js",
