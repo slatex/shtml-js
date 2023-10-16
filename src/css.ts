@@ -1,7 +1,7 @@
 
 var SHTML_CSS : Element | undefined = undefined
 
-function shtml_init_css() {
+export function init_css() {
   if (SHTML_CSS) return
   SHTML_CSS = document.createElement('style')
   SHTML_CSS.setAttribute('type', 'text/css')
@@ -33,7 +33,7 @@ function shtml_init_css() {
       case '.shtml-on-hover':
         return `.shtml-on-hover { background-color: yellow; cursor: pointer;display:inline }`
       case '.shtml-hover-window':
-        return `.shtml-hover-window { position: absolute; background:#f9f9f9; max_width:800px; box-shadow: 0 0 10px rgba(0,0,0,0.5); display:block;padding:5px; }`
+        return `.shtml-hover-window { background:#f9f9f9; max_width:600px; box-shadow: 0 0 10px rgba(0,0,0,0.5); display:block;padding:5px; }`
       case '.shtml-barrier':
         return `.shtml-barrier { pointer-events:none;display:block;position:absolute;top:0;left:0;padding:0;margin:0;width:100vw;height:100vh;opacity:0;background-color:#000; }`
     }
@@ -41,8 +41,8 @@ function shtml_init_css() {
   shtml_add_style(styles)
 }
 
-function shtml_add_style(styles) {
-  if (!SHTML_CSS) shtml_init_css()
+function shtml_add_style(styles:string) {
+  if (!SHTML_CSS) init_css()
   if ((SHTML_CSS as any).styleSheet) {
     (SHTML_CSS as any).styleSheet.cssText += styles
   } else {

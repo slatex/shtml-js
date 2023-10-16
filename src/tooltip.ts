@@ -1,21 +1,18 @@
-let shtml_tooltip_counter = 0
-let shtml_tooltip_created = false
-function shtml_tooltip_inc() {
-  if (!shtml_tooltip_created) return
-  shtml_tooltip_counter++
-  shtml_tooltip_created = false
-}
+import tippy, { Instance, Props } from 'tippy.js'
+import {SorV, TermData} from './terms'
+import {definitionsMap} from './shtml'
+import { WINDOW, USE_RAW } from './main'
 
-enum SHTMLSymbolOrVar {Symbol,Var}
-class SHTMLHoverable {
+/*
+export class SHTMLHoverable {
   tp:SHTMLSymbolOrVar
   path:string
   elems:Element[]
-  constructor(kind:SHTMLTerm,data:SHTMLTermData) {
+  constructor(kind:Term,data:TermData) {
     switch (kind) {
-      case SHTMLTerm.OMV:
-      case SHTMLTerm.OMA_OMV:
-      case SHTMLTerm.OMB_OMV:
+      case Term.OMV:
+      case Term.OMA_OMV:
+      case Term.OMB_OMV:
         this.tp = SHTMLSymbolOrVar.Var
         break
       default:
@@ -26,24 +23,89 @@ class SHTMLHoverable {
     this.elems = data.components
   }
 }
+*/
 
-function shtml_add_symbol_hover(hoverable:SHTMLHoverable) {
-  if (hoverable.tp === SHTMLSymbolOrVar.Var) {
-    hoverable.elems.forEach((elem) => {
+export function add_symbol_hover(data:TermData) {
+  if (data.symbol === SorV.Var) {
+    data.components.forEach((elem) => {
       elem.classList.add(`shtml-varcomp`)
-      elem.addEventListener('mouseover',(e) => shtml_hover_variable(hoverable.path,hoverable.elems,e as MouseEvent))
+      hover_variable(data.symbolname,data.components)
+      //elem.addEventListener('mouseover',(e) => hover_variable(data.symbolname,data.components,e as MouseEvent))
     })
   } else {
-    hoverable.elems.forEach((elem) => {
+    data.components.forEach((elem) => {
       elem.classList.add(`shtml-symcomp`)
-      elem.addEventListener('mouseover',(e) => shtml_hover_symbol(hoverable.path,hoverable.elems,e as MouseEvent))
+      hover_symbol(data.symbolname,data.components)
+      //elem.addEventListener('mouseover',(e) => hover_symbol(data.symbolname,data.components,e as MouseEvent))
     })
   }
 }
 
-function shtml_common_hover(elems:Element[],event:MouseEvent, cont:(div:HTMLDivElement) => void) {
+function common_hover(elems:Element[],cont: (e:Element,t:Instance<Props>) => string | Element | DocumentFragment) {
+  tippy(elems,{
+    content: (e) => {return cont(e,this)},
+    interactive: true,
+    allowHTML: true,
+    appendTo:document.body,
+    animateFill: false,
+    animation: 'fade',
+    placement: 'bottom',
+    maxWidth: 600,
+    delay: [0,50],
+    duration:[275, 250],
+    onShow: (i) => {
+      elems.forEach((e) => {
+        e.classList.add(`shtml-on-hover`)
+      })
+    },
+    onHide: (i) => {
+      elems.forEach((elem) => {
+        elem.classList.remove(`shtml-on-hover`)
+      })
+    }
+  })
+}
+
+
+async function hover_symbol(name:string,elems:Element[]) {
+  common_hover(elems,(e,tt) => {
+    const div = document.createElement('div')
+    div.classList.add('shtml-hover-window')
+    div.innerHTML = `Symbol ${name} (Loading...)`
+    let htmlo = definitionsMap.get(name);
+    if (htmlo) {
+      div.innerHTML = htmlo.innerHTML
+    } else {
+      try {
+        fetch(`${WINDOW.SHTML_SERVER}/${USE_RAW? "raw":""}fragment?${name}`).then((response) => {
+          if (!response.ok) { throw new Error("HTTP error " + response.status) }
+          response.text().then((html) => {
+            div.innerHTML = html
+          })
+        })
+      } catch (e) {
+        console.error(e)
+        div.innerHTML = `Symbol ${name}`
+      }
+    }
+    return div
+  })
+}
+
+function hover_variable(name:string,elems:Element[]) {
+  common_hover(elems,(e,tt) => {
+    const div = document.createElement('div')
+    div.classList.add('shtml-hover-window')
+    div.innerHTML = `Variable ${name}`
+    return div
+  })
+}
+
+/*
+function common_hover(elems:Element[],event:MouseEvent, cont:(div:HTMLDivElement) => void) {
   elems.forEach((elem) => {
     elem.classList.add(`shtml-on-hover`)
+    //tippy(elem)
   })
   const z = Math.max(...elems.map(e => {
     const s = window.getComputedStyle(e).getPropertyValue('z-index')
@@ -59,14 +121,14 @@ function shtml_common_hover(elems:Element[],event:MouseEvent, cont:(div:HTMLDivE
   tt.classList.add('shtml-hover-window')
   tt.style.left = (event.pageX - 20) + 'px'
   tt.style.top = (event.pageY - 20) + 'px'
-  tt.addEventListener('mouseleave',(_) => shtml_destroy_hover([tt,barrier],elems))
+  tt.addEventListener('mouseleave',(_) => destroy_hover([tt,barrier],elems))
   cont(tt)
   parent.appendChild(tt)
 }
 
-async function shtml_hover_symbol(name:string,elems:Element[],event:MouseEvent) {
-  shtml_common_hover(elems,event,async (tt) => {
-    let htmlo = shtml_definitionsMap.get(name);
+async function hover_symbol(name:string,elems:Element[],event:MouseEvent) {
+  common_hover(elems,event,async (tt) => {
+    let htmlo = definitionsMap.get(name);
     if (htmlo) {
       tt.innerHTML = htmlo.innerHTML
     } else {
@@ -83,16 +145,20 @@ async function shtml_hover_symbol(name:string,elems:Element[],event:MouseEvent) 
   })
 }
 
-function shtml_hover_variable(name:string,elems:Element[],event:MouseEvent) {
-  shtml_common_hover(elems,event,(tt) => tt.innerText = `Variable ${name}`)
+function hover_variable(name:string,elems:Element[],event:MouseEvent) {
+  common_hover(elems,event,(tt) => tt.innerText = `Variable ${name}`)
 }
 
-function shtml_destroy_hover(e:Element[],elems:Element[]) {
+function destroy_hover(e:Element[],elems:Element[]) {
   e.forEach(c => c.remove())
   elems.forEach((elem) => {
     elem.classList.remove(`shtml-on-hover`)
   })
 }
+*/
+
+
+
 /*
 function shtml_add_tooltip(elem:Element, tooltip:string,elems:Element[]) {
   const id = `shtml-tooltip-${shtml_tooltip_counter}`

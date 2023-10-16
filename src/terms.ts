@@ -1,10 +1,12 @@
-function shtml_do_term(elem:Element) {
-  const kind = shtml_parse_term_kind(elem)
-  const data = shtml_get_term_components(elem)
+import {add_symbol_hover as add_symbol_hover  } from './tooltip'
+import {do_shtml} from './shtml'
+
+export function do_term(elem:Element) {
+  const data = get_term_components(elem)
   data.args.forEach((arg) => {
     do_shtml(arg)
   })
-  shtml_add_symbol_hover(new SHTMLHoverable(kind,data))
+  add_symbol_hover(data)
 /*
 
   shtml_tooltip_inc()
@@ -25,34 +27,41 @@ function shtml_do_term(elem:Element) {
   */
 }
 
-enum SHTMLTerm {
-  OMID,OMV,OMA_OMID,OMA_OMV,OMB_OMID,OMB_OMV
-}
-function shtml_parse_term_kind(elem:Element):SHTMLTerm | undefined {
-  const s = elem.attributes.getNamedItem('shtml:term')?.value
-  let path = elem.attributes.getNamedItem('shtml:head')?.value
-  let issym = path.split('?').length > 1
-  switch (s) {
-    case 'OMID': 
-      if (issym) return SHTMLTerm.OMID
-      return SHTMLTerm.OMV
-    case 'OMV': return SHTMLTerm.OMV
-    case 'OMA':
-      if (issym) return SHTMLTerm.OMA_OMID
-      return SHTMLTerm.OMA_OMV
-    case 'OMB':
-      if (issym) return SHTMLTerm.OMB_OMID
-      return SHTMLTerm.OMB_OMV
-  }
-}
+export enum SorV {Symbol,Var}
+export enum Term { OMID,OMA,OMB }
 
-class SHTMLTermData {
+export class TermData {
+  kind:Term
+  symbol:SorV
   symbolname:string
   components:Element[]
   args:Element[]
 }
 
-function shtml_get_term_components(elem:Element): SHTMLTermData {
+function get_term_components(elem:Element): TermData {
+
+  var kind = Term.OMID
+  var symbol = SorV.Symbol
+  const s = elem.attributes.getNamedItem('shtml:term')?.value
+  let path = elem.attributes.getNamedItem('shtml:head')?.value
+  let issym = path.split('?').length > 1
+  switch (s) {
+    case 'OMID': 
+      if (!issym) symbol = SorV.Var
+      break
+    case 'OMV':
+      symbol = SorV.Var
+      break
+    case 'OMA':
+      if (!issym) symbol = SorV.Var
+      kind = Term.OMA
+      break
+    case 'OMB':
+      if (!issym) symbol = SorV.Var
+      kind = Term.OMB
+      break
+  }
+
   const components:Element[] = []
   const args:Element[] = []
   const symbolname = elem.attributes.getNamedItem('shtml:head')?.value
@@ -84,5 +93,5 @@ function shtml_get_term_components(elem:Element): SHTMLTermData {
     })
   }
   iter(elem)
-  return {components,args,symbolname}
+  return {components,args,symbolname,kind,symbol}
 }
