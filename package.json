@@ -5,8 +5,7 @@
     "clean": "rm -rf www",
     "minify": "terser www/shtml.js --compress --mangle --output www/shtml.min.js",
     "minify:esbuild": "esbuild www/shtml.js --minify --outfile=www/shtml.min.js",
-    "build": "npm run clean && tsc && npm run minify",
-    "build:webpack": "webpack --mode production"
+    "build": "webpack --mode production"
   },
   "devDependencies": {
     "esbuild": "^0.19.4",

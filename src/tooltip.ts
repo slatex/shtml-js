@@ -3,6 +3,10 @@ import {SorV, TermData} from './terms'
 import {definitionsMap} from './shtml'
 import { WINDOW, USE_RAW } from './main'
 
+function remote_url(name:string): string {
+  return `${WINDOW.SHTML_SERVER}/${USE_RAW? "raw":""}fragment?${name}&language=${WINDOW.SHTML_LANGUAGE}`
+}
+
 /*
 export class SHTMLHoverable {
   tp:SHTMLSymbolOrVar
@@ -41,9 +45,9 @@ export function add_symbol_hover(data:TermData) {
   }
 }
 
-function common_hover(elems:Element[],cont: (e:Element,t:Instance<Props>) => string | Element | DocumentFragment) {
+function common_hover(elems:Element[],cont: () => string | Element | DocumentFragment) {
   tippy(elems,{
-    content: (e) => {return cont(e,this)},
+    content: "Loading...",
     interactive: true,
     allowHTML: true,
     appendTo:document.body,
@@ -54,6 +58,7 @@ function common_hover(elems:Element[],cont: (e:Element,t:Instance<Props>) => str
     delay: [0,50],
     duration:[275, 250],
     onShow: (i) => {
+      i.setContent(cont())
       elems.forEach((e) => {
         e.classList.add(`shtml-on-hover`)
       })
@@ -68,7 +73,7 @@ function common_hover(elems:Element[],cont: (e:Element,t:Instance<Props>) => str
 
 
 async function hover_symbol(name:string,elems:Element[]) {
-  common_hover(elems,(e,tt) => {
+  common_hover(elems,() => {
     const div = document.createElement('div')
     div.classList.add('shtml-hover-window')
     div.innerHTML = `Symbol ${name} (Loading...)`
@@ -77,7 +82,7 @@ async function hover_symbol(name:string,elems:Element[]) {
       div.innerHTML = htmlo.innerHTML
     } else {
       try {
-        fetch(`${WINDOW.SHTML_SERVER}/${USE_RAW? "raw":""}fragment?${name}`).then((response) => {
+        fetch(remote_url(name)).then((response) => {
           if (!response.ok) { throw new Error("HTTP error " + response.status) }
           response.text().then((html) => {
             div.innerHTML = html
@@ -93,7 +98,7 @@ async function hover_symbol(name:string,elems:Element[]) {
 }
 
 function hover_variable(name:string,elems:Element[]) {
-  common_hover(elems,(e,tt) => {
+  common_hover(elems,() => {
     const div = document.createElement('div')
     div.classList.add('shtml-hover-window')
     div.innerHTML = `Variable ${name}`
