@@ -57,10 +57,17 @@ export function do_shtml(elem: Element) {
           return
         case 'definition':
           do_definition(elem)
-          const old = in_definition
+          const oldd = in_definition
           in_definition = elem
           recurse()
-          in_definition = old
+          in_definition = oldd
+          return
+        case 'paragraph':
+          do_definition(elem)
+          const oldp = in_definition
+          in_definition = elem
+          recurse()
+          in_definition = oldp
           return
         default:
           console.log("SHTML attribute not implemented: ",name)

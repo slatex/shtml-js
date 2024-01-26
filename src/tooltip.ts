@@ -1,10 +1,10 @@
 import tippy, { Instance, Props } from 'tippy.js'
 import {SorV, TermData} from './terms'
 import {definitionsMap} from './shtml'
-import { WINDOW, USE_RAW } from './main'
+import { WINDOW } from './main'
 
 function remote_url(name:string): string {
-  return `${WINDOW.SHTML_SERVER}/${USE_RAW? "raw":""}fragment?${name}&language=${WINDOW.SHTML_LANGUAGE}`
+  return `${WINDOW.SHTML_SERVER}/rawfragment?${name}&language=${WINDOW.SHTML_LANGUAGE}`
 }
 
 /*

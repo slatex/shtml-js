@@ -7,7 +7,7 @@ export const NAMESPACES = {
   MATHML : 'http://www.w3.org/1998/Math/MathML',
   SHTML : 'http://kwarc.info/ns/SHTML'
 }
-export const USE_RAW = true;
+
 if (!WINDOW.SHTML_SERVER) {
   WINDOW.SHTML_SERVER = 'https://stexmmt.mathhub.info/:sTeX' // 'http://localhost:8080/:sTeX' //
 }
