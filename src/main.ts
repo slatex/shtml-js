@@ -41,15 +41,19 @@ const SHTML_LISTENER = new MutationObserver((mutations) => {
   })
 })
 
-document.addEventListener('DOMContentLoaded', () => {
-  SHTML_LISTENER.observe(document.body, { childList: true, subtree: true })
-  initialize()
-  do_shtml(document.body)
-});
-
 import {init_css} from "./css"
 
 function initialize() {
+  SHTML_LISTENER.observe(document.body, { childList: true, subtree: true })
   set_namespace_abbrev()
   init_css()
+  do_shtml(document.body)
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener('DOMContentLoaded', () => {
+    initialize()
+  });
+} else {
+  initialize()
 }
